@@ -1,0 +1,14 @@
+﻿.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.idea/
+frontend/.next/
+frontend/node_modules/
+backend/data/*.db
+backend/data/*.sqlite
+backend/data/*.sqlite3
+.env
+.env.*
+!.env.example
