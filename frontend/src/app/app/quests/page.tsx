@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import AppHeader from "@/components/app/AppHeader";
 import QuestCard from "@/components/app/QuestCard";
+import { useEmailParam } from "@/lib/query";
 
 type Data = {
     quests: {
@@ -15,12 +16,8 @@ type Data = {
     }[];
 };
 
-export default function QuestsPage({
-                                       searchParams,
-                                   }: {
-    searchParams: { email?: string };
-}) {
-    const email = searchParams.email || "demo@sistema.local";
+export default function QuestsPage() {
+    const email = useEmailParam();
     const [data, setData] = useState<Data | null>(null);
 
     useEffect(() => {

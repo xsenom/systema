@@ -6,7 +6,7 @@ from app.api.routes import router
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Sistema Demo API")
+app = FastAPI(title="Sistema MVP API")
 
 app.add_middleware(
     CORSMiddleware,
