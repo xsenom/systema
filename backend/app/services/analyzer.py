@@ -122,51 +122,63 @@ def generate_quests(has_blog: bool) -> List[Dict]:
     return quests
 
 
-def generate_world_nodes() -> List[Dict]:
-    return [
+def generate_world_nodes(niche: str, monthly_income_goal: float, current_stage: str, has_blog: bool) -> List[Dict]:
+    goal_label = f"{int(monthly_income_goal):,} ₽".replace(",", " ") if monthly_income_goal else "целевой финансовый результат"
+    blog_step = "Усилить блог и контент-систему" if has_blog else "Запустить блог и первые контент-единицы"
+
+    nodes = [
         {
-            "category": "base",
-            "title": "Продукт",
-            "description": "Что именно предлагается клиенту и какой результат он получает.",
+            "category": "point-A",
+            "title": "Текущая точка клиента",
+            "description": f"Ниша: {niche or 'не указана'}. Этап: {current_stage}. Фиксируем стартовые ограничения и ресурсы.",
             "sort_order": 1,
             "is_locked": False,
         },
         {
-            "category": "base",
-            "title": "Упаковка",
-            "description": "Профиль, оффер, визуал, доверие, структура страницы.",
+            "category": "goal",
+            "title": "Цель на месяц",
+            "description": f"Формулируем измеримую цель: {goal_label}. Определяем, как будем измерять прогресс каждую неделю.",
             "sort_order": 2,
             "is_locked": False,
         },
         {
-            "category": "growth",
-            "title": "Контент",
-            "description": "Рубрики, темы, сценарии материалов и прогрев.",
+            "category": "miro-step",
+            "title": "Шаг 1: Продукт и оффер",
+            "description": "Определяем основной продукт, сегмент клиента и оффер, который понятен за 5 секунд.",
             "sort_order": 3,
             "is_locked": False,
         },
         {
-            "category": "growth",
-            "title": "Продажи",
-            "description": "Касания, заявки, диагностика, консультация, CTA.",
+            "category": "miro-step",
+            "title": "Шаг 2: Контент и блог",
+            "description": blog_step,
             "sort_order": 4,
             "is_locked": False,
         },
         {
-            "category": "scale",
-            "title": "Трафик",
-            "description": "Где брать внимание: соцсети, коллаборации, платные каналы, SEO.",
+            "category": "miro-step",
+            "title": "Шаг 3: Лидогенерация",
+            "description": "Выстраиваем путь: контент → касание → диалог → заявка. Добавляем CTA и точки входа.",
             "sort_order": 5,
-            "is_locked": True,
+            "is_locked": False,
         },
         {
-            "category": "scale",
-            "title": "Удержание",
-            "description": "Повторные продажи, подписка, комьюнити, сопровождение.",
+            "category": "miro-step",
+            "title": "Шаг 4: Продажи",
+            "description": "Собираем воронку консультации/продажи: диагностика, оффер, закрытие сделки.",
             "sort_order": 6,
             "is_locked": True,
         },
+        {
+            "category": "miro-step",
+            "title": "Шаг 5: Контроль и ретроспектива",
+            "description": "Каждые 7 дней сверяем метрики, снимаем блокеры и корректируем карту действий.",
+            "sort_order": 7,
+            "is_locked": True,
+        },
     ]
+
+    return nodes
 
 
 def generate_trends(niche: str, blog_links: List[Dict[str, str]] | None = None) -> List[Dict]:

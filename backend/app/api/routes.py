@@ -82,7 +82,7 @@ def generate_all_for_user(db: Session, user: User, profile: Profile) -> None:
     for item in generate_quests(profile.has_blog):
         db.add(QuestItem(user_id=user.id, **item))
 
-    for item in generate_world_nodes():
+    for item in generate_world_nodes(profile.niche, profile.monthly_income_goal, profile.current_stage, profile.has_blog):
         db.add(WorldNode(user_id=user.id, **item))
 
     for item in generate_trends(profile.niche, blog_links=serialized_links):
@@ -142,6 +142,11 @@ def create_profile(payload: ProfileCreate, db: Session = Depends(get_db)):
         db.add(profile)
 
     db.commit()
+
+    # Карта мира и стартовые рекомендации формируются сразу после заполнения профиля (MVP-логика).
+    db.refresh(profile)
+    generate_all_for_user(db, user, profile)
+
     return {"ok": True, "email": payload.email}
 
 
