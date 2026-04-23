@@ -1,27 +1,46 @@
-from typing import List, Dict
+from typing import Dict, List
 
 
-def generate_recommendations(niche: str, has_blog: bool, current_stage: str) -> List[Dict]:
+def _normalize_platforms(blog_links: List[Dict[str, str]]) -> List[str]:
+    return [item.get("platform", "").strip().lower() for item in blog_links if item.get("url", "").strip()]
+
+
+def generate_recommendations(
+    niche: str,
+    has_blog: bool,
+    current_stage: str,
+    blog_links: List[Dict[str, str]] | None = None,
+) -> List[Dict]:
+    blog_links = blog_links or []
+    active_platforms = _normalize_platforms(blog_links)
+
     recs = [
         {
             "title": "Собрать понятный оффер",
             "body": "Один главный результат для клиента должен читаться за 5 секунд: в профиле, лендинге и в начале контента.",
         },
         {
+            "title": "Сформулировать цель на 30 дней",
+            "body": "Цель должна быть измеримой: заявки, консультации, продажи или охват в конкретных цифрах.",
+        },
+        {
             "title": "Сделать контент-матрицу",
             "body": "Раздели контент на 4 линии: экспертность, кейсы, личный стиль, продажа. Это уберёт хаос.",
         },
-        {
-            "title": "Собрать короткий маршрут до заявки",
-            "body": "Путь должен быть простым: вижу → понимаю ценность → пишу → получаю следующий шаг.",
-        },
     ]
 
-    if has_blog:
+    if has_blog and active_platforms:
         recs.append(
             {
-                "title": "Переориентировать блог под цель месяца",
-                "body": "Контент должен вести не просто к охвату, а к конкретной цели: заявка, запись, консультация, продажа.",
+                "title": "Привязать блог к цели месяца",
+                "body": f"Площадки ({', '.join(active_platforms)}) должны вести к одной CTA-цели недели и месяца.",
+            }
+        )
+    elif has_blog:
+        recs.append(
+            {
+                "title": "Добавить ссылки на блог",
+                "body": "Чтобы дать точные рекомендации, добавь хотя бы одну ссылку на активную площадку.",
             }
         )
     else:
@@ -47,7 +66,7 @@ def generate_recommendations(niche: str, has_blog: bool, current_stage: str) -> 
             }
         )
 
-    return recs[:5]
+    return recs[:6]
 
 
 def generate_quests(has_blog: bool) -> List[Dict]:
@@ -60,39 +79,32 @@ def generate_quests(has_blog: bool) -> List[Dict]:
             "reward_points": 20,
         },
         {
+            "title": "Согласовать цель месяца",
+            "description": "Проверь цель с системой: если цель нереалистична, прими скорректированный вариант.",
+            "day_number": 2,
+            "status": "todo",
+            "reward_points": 20,
+        },
+        {
             "title": "Собрать 10 тем контента",
             "description": "Подготовь темы, которые показывают экспертность и вызывают диалог.",
-            "day_number": 2,
+            "day_number": 3,
             "status": "todo",
             "reward_points": 15,
         },
         {
             "title": "Описать один кейс",
             "description": "Запрос клиента → действие → результат.",
-            "day_number": 3,
+            "day_number": 4,
             "status": "todo",
             "reward_points": 20,
         },
         {
             "title": "Подготовить CTA",
             "description": "Сделай 3 варианта призыва к действию для контента и сайта.",
-            "day_number": 4,
-            "status": "todo",
-            "reward_points": 10,
-        },
-        {
-            "title": "Создать продающий материал",
-            "description": "Пост, видео или сторис с конкретным предложением.",
             "day_number": 5,
             "status": "todo",
-            "reward_points": 25,
-        },
-        {
-            "title": "Разобрать профиль как клиент",
-            "description": "Проверь, понятно ли новому человеку, что ты продаёшь и зачем писать тебе.",
-            "day_number": 6,
-            "status": "todo",
-            "reward_points": 15,
+            "reward_points": 10,
         },
         {
             "title": "Итог недели",
@@ -110,73 +122,87 @@ def generate_quests(has_blog: bool) -> List[Dict]:
     return quests
 
 
-def generate_world_nodes() -> List[Dict]:
-    return [
+def generate_world_nodes(niche: str, monthly_income_goal: float, current_stage: str, has_blog: bool) -> List[Dict]:
+    goal_label = f"{int(monthly_income_goal):,} ₽".replace(",", " ") if monthly_income_goal else "целевой финансовый результат"
+    blog_step = "Усилить блог и контент-систему" if has_blog else "Запустить блог и первые контент-единицы"
+
+    nodes = [
         {
-            "category": "base",
-            "title": "Продукт",
-            "description": "Что именно предлагается клиенту и какой результат он получает.",
+            "category": "point-A",
+            "title": "Текущая точка клиента",
+            "description": f"Ниша: {niche or 'не указана'}. Этап: {current_stage}. Фиксируем стартовые ограничения и ресурсы.",
             "sort_order": 1,
             "is_locked": False,
         },
         {
-            "category": "base",
-            "title": "Упаковка",
-            "description": "Профиль, оффер, визуал, доверие, структура страницы.",
+            "category": "goal",
+            "title": "Цель на месяц",
+            "description": f"Формулируем измеримую цель: {goal_label}. Определяем, как будем измерять прогресс каждую неделю.",
             "sort_order": 2,
             "is_locked": False,
         },
         {
-            "category": "growth",
-            "title": "Контент",
-            "description": "Рубрики, темы, сценарии материалов и прогрев.",
+            "category": "miro-step",
+            "title": "Шаг 1: Продукт и оффер",
+            "description": "Определяем основной продукт, сегмент клиента и оффер, который понятен за 5 секунд.",
             "sort_order": 3,
             "is_locked": False,
         },
         {
-            "category": "growth",
-            "title": "Продажи",
-            "description": "Касания, заявки, диагностика, консультация, CTA.",
+            "category": "miro-step",
+            "title": "Шаг 2: Контент и блог",
+            "description": blog_step,
             "sort_order": 4,
             "is_locked": False,
         },
         {
-            "category": "scale",
-            "title": "Трафик",
-            "description": "Где брать внимание: соцсети, коллаборации, платные каналы, SEO.",
+            "category": "miro-step",
+            "title": "Шаг 3: Лидогенерация",
+            "description": "Выстраиваем путь: контент → касание → диалог → заявка. Добавляем CTA и точки входа.",
             "sort_order": 5,
+            "is_locked": False,
+        },
+        {
+            "category": "miro-step",
+            "title": "Шаг 4: Продажи",
+            "description": "Собираем воронку консультации/продажи: диагностика, оффер, закрытие сделки.",
+            "sort_order": 6,
             "is_locked": True,
         },
         {
-            "category": "scale",
-            "title": "Удержание",
-            "description": "Повторные продажи, подписка, комьюнити, сопровождение.",
-            "sort_order": 6,
+            "category": "miro-step",
+            "title": "Шаг 5: Контроль и ретроспектива",
+            "description": "Каждые 7 дней сверяем метрики, снимаем блокеры и корректируем карту действий.",
+            "sort_order": 7,
             "is_locked": True,
         },
     ]
 
+    return nodes
 
-def generate_trends(niche: str) -> List[Dict]:
+
+def generate_trends(niche: str, blog_links: List[Dict[str, str]] | None = None) -> List[Dict]:
     niche_label = niche or "личный бренд"
+    platforms = _normalize_platforms(blog_links or [])
+    target_platforms = ", ".join(platforms) if platforms else "telegram/youtube/instagram/tiktok"
 
     return [
         {
             "niche": niche_label,
             "title": "Короткие прикладные форматы",
-            "summary": "Лучше работают короткие форматы с одной чёткой мыслью и конкретной пользой.",
+            "summary": f"На площадках {target_platforms} стабильно работают короткие форматы с одной понятной мыслью.",
             "implementation_tip": "Сделай серию из 5 быстрых материалов: ошибка, совет, кейс, мнение, CTA.",
         },
         {
             "niche": niche_label,
-            "title": "Личный взгляд вместо обезличенной экспертности",
+            "title": "Авторский взгляд вместо обезличенной экспертности",
             "summary": "Контент с позицией и авторским мнением вовлекает сильнее сухой информации.",
             "implementation_tip": "Добавляй опыт, наблюдение, кейс и вывод.",
         },
         {
             "niche": niche_label,
-            "title": "Игровые сценарии и квесты",
+            "title": "Квестовая механика в блоге",
             "summary": "Людям проще вовлекаться, когда путь разбит на маленькие шаги с понятным результатом.",
-            "implementation_tip": "Упакуй недельную цель в мини-квест с ежедневными шагами.",
+            "implementation_tip": "Упакуй недельную цель в мини-квест с ежедневными шагами и отметкой прогресса.",
         },
     ]
