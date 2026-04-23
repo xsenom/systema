@@ -7,6 +7,7 @@ import AppHeader from "@/components/app/AppHeader";
 import RecommendationCard from "@/components/app/RecommendationCard";
 import QuestCard from "@/components/app/QuestCard";
 import GlassCard from "@/components/ui/GlassCard";
+import { getEmailFromWindow } from "@/lib/query";
 
 type DashboardData = {
     email: string;
@@ -19,13 +20,13 @@ type DashboardData = {
     notifications: { title: string; body: string; channel: string }[];
 };
 
-export default function DashboardPage({
-                                          searchParams,
-                                      }: {
-    searchParams: { email?: string };
-}) {
-    const email = searchParams.email || "demo@sistema.local";
+export default function DashboardPage() {
+    const [email, setEmail] = useState("demo@sistema.local");
     const [data, setData] = useState<DashboardData | null>(null);
+
+    useEffect(() => {
+        setEmail(getEmailFromWindow());
+    }, []);
 
     useEffect(() => {
         apiRequest<DashboardData>(`/dashboard/${encodeURIComponent(email)}`)
@@ -84,7 +85,7 @@ export default function DashboardPage({
                         {data?.notifications?.slice(0, 4).map((item, index) => (
                             <div key={index} className="rounded-2xl bg-white/[0.05] p-4">
                                 <div className="text-sm font-medium">{item.title}</div>
-                                <div className="mt-1 text-sm text-white/65">{item.body}</div>
+                                <div className="mt-1 text-sm text-white/65">[{item.channel}] {item.body}</div>
                             </div>
                         ))}
                     </div>

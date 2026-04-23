@@ -17,6 +17,7 @@ from app.schemas.schemas import (
     BlogLinksCreate,
     LegalAcceptIn,
     PaymentIn,
+    WalletConsentIn,
     DashboardOut,
     RecommendationOut,
     QuestOut,
@@ -50,14 +51,32 @@ def clear_generated_data(db: Session, user_id: int) -> None:
     db.query(QuestItem).filter(QuestItem.user_id == user_id).delete()
     db.query(WorldNode).filter(WorldNode.user_id == user_id).delete()
     db.query(TrendSignal).filter(TrendSignal.user_id == user_id).delete()
-    db.query(Notification).filter(Notification.user_id == user_id).delete()
     db.commit()
+
+
+def _notification_channels(db: Session, user_id: int) -> list[str]:
+    channels = ["site", "email"]
+    wallet_enabled = (
+        db.query(Notification)
+        .filter(Notification.user_id == user_id, Notification.channel == "wallet")
+        .first()
+    )
+    if wallet_enabled:
+        channels.append("wallet")
+    return channels
 
 
 def generate_all_for_user(db: Session, user: User, profile: Profile) -> None:
     clear_generated_data(db, user.id)
+    blog_links = db.query(BlogLink).filter(BlogLink.user_id == user.id).all()
+    serialized_links = [{"platform": x.platform, "url": x.url} for x in blog_links]
 
-    for item in generate_recommendations(profile.niche, profile.has_blog, profile.current_stage):
+    for item in generate_recommendations(
+        profile.niche,
+        profile.has_blog,
+        profile.current_stage,
+        blog_links=serialized_links,
+    ):
         db.add(Recommendation(user_id=user.id, **item))
 
     for item in generate_quests(profile.has_blog):
@@ -66,17 +85,19 @@ def generate_all_for_user(db: Session, user: User, profile: Profile) -> None:
     for item in generate_world_nodes():
         db.add(WorldNode(user_id=user.id, **item))
 
-    for item in generate_trends(profile.niche):
+    for item in generate_trends(profile.niche, blog_links=serialized_links):
         db.add(TrendSignal(user_id=user.id, **item))
 
-    db.add(
-        Notification(
-            user_id=user.id,
-            channel="site",
-            title="План на месяц собран",
-            body="Система создала рекомендации, квесты, карту мира и тренды.",
+    for channel in _notification_channels(db, user.id):
+        db.add(
+            Notification(
+                user_id=user.id,
+                channel=channel,
+                title="План на месяц собран",
+                body="Система создала рекомендации, квесты, карту мира и тренды по блогу.",
+            )
         )
-    )
+
     db.add(
         Notification(
             user_id=user.id,
@@ -137,6 +158,48 @@ def create_blog_links(payload: BlogLinksCreate, db: Session = Depends(get_db)):
     return {"ok": True}
 
 
+@router.get("/blog-analysis/{email}")
+def blog_analysis(email: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    profile = db.query(Profile).filter(Profile.user_id == user.id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Профиль не найден")
+
+    links = db.query(BlogLink).filter(BlogLink.user_id == user.id).all()
+    serialized_links = [{"platform": x.platform, "url": x.url} for x in links]
+
+    return {
+        "recommendations": generate_recommendations(
+            profile.niche,
+            profile.has_blog,
+            profile.current_stage,
+            blog_links=serialized_links,
+        )[:3],
+        "trends": generate_trends(profile.niche, blog_links=serialized_links)[:2],
+    }
+
+
+@router.post("/wallet-consent")
+def wallet_consent(payload: WalletConsentIn, db: Session = Depends(get_db)):
+    user = get_or_create_user(db, payload.email)
+
+    if payload.enabled:
+        db.add(
+            Notification(
+                user_id=user.id,
+                channel="wallet",
+                title="Wallet подключен",
+                body="Подтверждено получение уведомлений в wallet.",
+            )
+        )
+        db.commit()
+
+    return {"ok": True, "enabled": payload.enabled}
+
+
 @router.post("/legal")
 def accept_legal(payload: LegalAcceptIn, db: Session = Depends(get_db)):
     if not (payload.accepted_policy and payload.accepted_offer and payload.accepted_personal_data):
@@ -171,7 +234,7 @@ def create_payment(payload: PaymentIn, db: Session = Depends(get_db)):
 
 
 @router.post("/generate/{email}")
-def generate_demo(email: str, db: Session = Depends(get_db)):
+def generate_plan(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
@@ -185,8 +248,9 @@ def generate_demo(email: str, db: Session = Depends(get_db)):
 
 
 @router.post("/seed-demo")
-def seed_demo(db: Session = Depends(get_db)):
-    email = "demo@sistema.local"
+@router.post("/seed-mvp")
+def seed_mvp(db: Session = Depends(get_db)):
+    email = "mvp@sistema.local"
     user = get_or_create_user(db, email)
 
     profile = db.query(Profile).filter(Profile.user_id == user.id).first()
@@ -215,8 +279,8 @@ def seed_demo(db: Session = Depends(get_db)):
         db.commit()
 
     db.query(BlogLink).filter(BlogLink.user_id == user.id).delete()
-    db.add(BlogLink(user_id=user.id, platform="telegram", url="https://t.me/demo_blog"))
-    db.add(BlogLink(user_id=user.id, platform="instagram", url="https://instagram.com/demo_blog"))
+    db.add(BlogLink(user_id=user.id, platform="telegram", url="https://t.me/mvp_blog"))
+    db.add(BlogLink(user_id=user.id, platform="instagram", url="https://instagram.com/mvp_blog"))
     db.add(BlogLink(user_id=user.id, platform="website", url="https://example.com"))
     db.commit()
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useEmailParam } from "@/lib/query";
 
 const items = [
     { href: "/app/dashboard", label: "Dashboard" },
@@ -13,8 +13,7 @@ const items = [
 ];
 
 export default function AppSidebar() {
-    const searchParams = useSearchParams();
-    const email = searchParams.get("email") || "demo@sistema.local";
+    const email = useEmailParam();
 
     return (
         <aside className="w-full rounded-[28px] border border-white/10 bg-white/[0.05] p-5 lg:w-72">

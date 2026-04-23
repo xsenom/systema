@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-    --bg: #091225;
+    --bg: #1a1c4a;
     --fg: #f4f7ff;
 }
 
@@ -12,11 +12,12 @@ body {
     padding: 0;
     color: var(--fg);
     background:
-            radial-gradient(circle at top left, rgba(110, 78, 255, 0.22), transparent 24%),
-            radial-gradient(circle at top right, rgba(67, 97, 238, 0.16), transparent 18%),
-            radial-gradient(circle at bottom right, rgba(167, 139, 250, 0.12), transparent 24%),
-            linear-gradient(180deg, #081121 0%, #0b1530 55%, #0a1324 100%);
-    font-family: Arial, Helvetica, sans-serif;
+            radial-gradient(circle at 12% 10%, rgba(217, 152, 255, 0.35), transparent 22%),
+            radial-gradient(circle at 18% 22%, rgba(127, 205, 255, 0.28), transparent 10%),
+            radial-gradient(circle at 86% 84%, rgba(145, 102, 255, 0.26), transparent 20%),
+            radial-gradient(circle at 82% 18%, rgba(69, 128, 255, 0.2), transparent 16%),
+            linear-gradient(145deg, #29245f 0%, #232f68 48%, #1f2a58 100%);
+    font-family: Inter, Arial, Helvetica, sans-serif;
 }
 
 * {
@@ -33,4 +34,11 @@ input,
 textarea,
 select {
     font: inherit;
+}
+
+.glass-surface {
+    background: linear-gradient(140deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 20px 70px rgba(5, 7, 24, 0.45);
 }
