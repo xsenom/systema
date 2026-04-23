@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import AppHeader from "@/components/app/AppHeader";
 import WorldNodeCard from "@/components/app/WorldNodeCard";
+import { useEmailParam } from "@/lib/query";
 
 type Data = {
     world_nodes: {
@@ -15,12 +16,8 @@ type Data = {
     }[];
 };
 
-export default function WorldPage({
-                                      searchParams,
-                                  }: {
-    searchParams: { email?: string };
-}) {
-    const email = searchParams.email || "demo@sistema.local";
+export default function WorldPage() {
+    const email = useEmailParam();
     const [data, setData] = useState<Data | null>(null);
 
     useEffect(() => {
