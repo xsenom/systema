@@ -7,9 +7,9 @@ type Props = {
 
 export default function RecommendationCard({ title, body }: Props) {
     return (
-        <GlassCard>
+        <GlassCard className="bg-slate-900/35">
             <h3 className="mb-3 text-xl font-semibold">{title}</h3>
-            <p className="text-sm leading-6 text-white/70">{body}</p>
+            <p className="text-sm leading-6 text-white/80">{body}</p>
         </GlassCard>
     );
 }

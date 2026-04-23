@@ -23,61 +23,57 @@ export default function HomePage() {
     }
 
     return (
-        <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-center px-6 py-12">
-            <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+        <main className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-center overflow-hidden px-6 py-10">
+            <div className="pointer-events-none absolute -left-24 top-8 h-80 w-80 rounded-full bg-fuchsia-300/25 blur-2xl" />
+            <div className="pointer-events-none absolute right-0 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-blue-400/25 blur-2xl" />
+
+            <div className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
                 <div>
-                    <div className="mb-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white/90">MVP ready</div>
-                    <h1 className="max-w-3xl text-5xl font-semibold leading-tight md:text-7xl">Система</h1>
-                    <p className="mt-6 max-w-2xl text-base leading-7 text-white/80 md:text-lg">
-                        Не демо-лендинг, а рабочий MVP: профиль клиента, ссылки на блог, согласия, оплата и автоматическая генерация
-                        рекомендаций, квестов, карты мира и трендов.
+                    <div className="mb-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm">MVP версия</div>
+                    <h1 className="text-6xl font-semibold leading-tight">Система</h1>
+                    <p className="mt-5 max-w-xl text-white/80">
+                        Полностью рабочий MVP: профиль, анализ блога, согласия, оплата и ежедневные квесты в стиле космического интерфейса.
                     </p>
 
                     <div className="mt-8 flex flex-wrap gap-4">
-                        <button
-                            onClick={openReadyMvp}
-                            disabled={loading}
-                            className="rounded-full bg-blue-500 px-6 py-3 font-medium text-white transition hover:bg-blue-400 disabled:opacity-60"
-                        >
-                            {loading ? "Запускаем MVP..." : "Открыть готовый MVP-профиль"}
+                        <button onClick={openReadyMvp} disabled={loading} className="rounded-full bg-blue-500 px-6 py-3 font-medium transition hover:bg-blue-400 disabled:opacity-60">
+                            {loading ? "Запуск..." : "Открыть MVP"}
                         </button>
-
-                        <Link
-                            href="/onboarding/profile"
-                            className="rounded-full border border-white/20 bg-white/10 px-6 py-3 font-medium text-white transition hover:bg-white/15"
-                        >
-                            Пройти полный onboarding
+                        <Link href="/onboarding/profile" className="rounded-full border border-white/20 bg-white/10 px-6 py-3 font-medium transition hover:bg-white/15">
+                            Ручной onboarding
                         </Link>
                     </div>
                 </div>
 
-                <div className="relative grid gap-5 md:grid-cols-2">
-                    <div className="glass-surface relative min-h-[430px] rounded-[36px] p-5">
-                        <div className="absolute left-4 top-4 h-14 w-14 rounded-full bg-gradient-to-br from-violet-200/70 to-transparent blur-sm" />
-                        <div className="mt-24 rounded-[28px] bg-slate-900/35 p-5">
-                            <div className="text-2xl font-semibold">Explore the stars</div>
-                            <p className="mt-3 text-sm text-white/80">Путь клиента в формате квеста: шаги, цели и ежедневный прогресс.</p>
-                            <button className="mt-5 rounded-full bg-blue-500/80 px-5 py-2 text-sm">Fly with stars</button>
+                <div className="relative flex items-end justify-center gap-6">
+                    <div className="phone-shell relative h-[620px] w-[290px] overflow-hidden p-5">
+                        <div className="star-dots absolute inset-0" />
+                        <div className="relative mt-24 rounded-[30px] border border-white/20 bg-white/10 p-6 backdrop-blur-xl">
+                            <h3 className="text-3xl font-semibold">Explore the stars</h3>
+                            <p className="mt-3 text-sm text-white/80">The world of stars is full of wonderful places and beautiful life.</p>
+                            <button className="mt-6 w-full rounded-full bg-blue-500/80 py-3">Fly with stars</button>
                         </div>
                     </div>
 
-                    <div className="glass-surface relative min-h-[430px] rounded-[36px] p-5">
-                        <div className="mb-4 flex items-center justify-between text-sm text-white/90">
+                    <div className="phone-shell relative h-[650px] w-[300px] overflow-hidden p-5">
+                        <div className="star-dots absolute inset-0" />
+                        <div className="relative flex items-center justify-between rounded-2xl bg-white/10 px-3 py-2 text-sm backdrop-blur-xl">
                             <span>Karim Saif</span>
-                            <span className="rounded-full bg-white/15 px-3 py-1">12334 🪙</span>
+                            <span className="rounded-full bg-white/20 px-3 py-1">12334 🪙</span>
                         </div>
-                        <div className="rounded-[24px] bg-slate-900/35 p-4">
-                            <div className="text-2xl font-semibold">Fly with stars</div>
-                            <button className="mt-3 rounded-full bg-blue-500/80 px-4 py-2 text-sm">Fly</button>
+
+                        <div className="relative mt-4 rounded-3xl border border-white/20 bg-white/12 p-4 backdrop-blur-xl">
+                            <div className="text-4xl font-semibold">Fly with stars</div>
+                            <button className="mt-3 rounded-full bg-blue-500/80 px-4 py-2">Fly</button>
                         </div>
 
                         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                            <div className="rounded-2xl bg-slate-900/35 p-3">Mars<br /><span className="text-white/70">0.03 ETH</span></div>
-                            <div className="rounded-2xl bg-slate-900/35 p-3">Venus<br /><span className="text-white/70">123 km</span></div>
+                            <div className="rounded-2xl border border-white/15 bg-white/10 p-3">Mars<br /><span className="text-white/70">0.03 ETH</span></div>
+                            <div className="rounded-2xl border border-white/15 bg-white/10 p-3">Moon<br /><span className="text-white/70">123 km</span></div>
                         </div>
 
-                        <div className="absolute bottom-4 left-4 right-4 rounded-full bg-slate-900/45 px-4 py-3 text-center text-sm text-white/80">
-                            MVP flow: Profile → Blog → Legal → Pay → Dashboard
+                        <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-white/20 bg-slate-900/45 px-4 py-3 text-xs text-white/85 backdrop-blur-xl">
+                            Profile → Blog → Legal → Pay → Dashboard
                         </div>
                     </div>
                 </div>
