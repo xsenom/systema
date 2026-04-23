@@ -37,6 +37,11 @@ class PaymentIn(BaseModel):
     status: str = "paid"
 
 
+class WalletConsentIn(BaseModel):
+    email: EmailStr
+    enabled: bool = True
+
+
 class RecommendationOut(BaseModel):
     title: str
     body: str
