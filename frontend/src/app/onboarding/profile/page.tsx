@@ -93,10 +93,6 @@ export default function ProfilePage() {
 
     const canNext = answers[currentQuestion.key].trim().length > 1;
 
-    const updateAnswer = (key: string, value: string) => {
-        setAnswers((prev) => ({ ...prev, [key]: value }));
-    };
-
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
